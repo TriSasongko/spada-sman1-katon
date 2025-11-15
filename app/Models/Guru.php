@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Guru extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $fillable = [
         'nama',
         'nip',
@@ -14,25 +19,30 @@ class Guru extends Model
         'email',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+    ];
 
-    public function user()
+    /**
+     * Relasi many-to-many dengan Mapel
+     */
+    public function mapels(): BelongsToMany
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(Mapel::class, 'guru_mapel', 'guru_id', 'mapel_id')
+            ->withTimestamps();
     }
 
-    public function kelas()
+    /**
+     * Accessor untuk mendapatkan nama jenis kelamin
+     */
+    public function getJenisKelaminLabelAttribute(): string
     {
-        return $this->hasMany(Kelas::class);
+        return match($this->jenis_kelamin) {
+            'L' => 'Laki-laki',
+            'P' => 'Perempuan',
+            default => 'Tidak Diketahui'
+        };
     }
-
-    public function materis()
-    {
-        return $this->hasMany(Materi::class);
-    }
-
-    public function mapels()
-    {
-        return $this->belongsToMany(Mapel::class);
-    }
-
 }

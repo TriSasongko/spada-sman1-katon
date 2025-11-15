@@ -22,6 +22,12 @@ class MapelResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'nama_mapel';
 
+    protected static ?string $navigationLabel = 'Mata Pelajaran';
+
+    protected static ?string $pluralLabel = 'Mata Pelajaran';
+
+    protected static ?string $slug = 'mapels';
+
     public static function getNavigationGroup(): ?string
     {
         return 'Menu Akademik';
