@@ -2,6 +2,9 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\User;
+use App\Models\ForumTopic;
+use App\Models\Pertemuan; // Import the new model
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 
@@ -11,18 +14,23 @@ class ResourceOverviewWidget extends BaseWidget
 
     protected function getStats(): array
     {
+        // Fetch real data from the database
+        $totalUsers = User::count();
+        $totalTopics = ForumTopic::count();
+        $totalPertemuan = Pertemuan::count(); // New metric
+
         return [
-            Stat::make('Total Pengguna', '1.2K')
-                ->description('32k peningkatan dalam 7 hari')
-                ->descriptionIcon('heroicon-m-arrow-trending-up')
+            Stat::make('Total Pengguna', $totalUsers)
+                ->description('Jumlah total pengguna terdaftar')
+                ->descriptionIcon('heroicon-m-user-group')
                 ->color('success'),
-            Stat::make('Total Postingan', '192')
-                ->description('7% penurunan dalam 7 hari')
-                ->descriptionIcon('heroicon-m-arrow-trending-down')
+            Stat::make('Total Postingan Forum', $totalTopics)
+                ->description('Jumlah total topik forum yang dibuat')
+                ->descriptionIcon('heroicon-m-chat-bubble-left-right')
                 ->color('danger'),
-            Stat::make('Kunjungan Hari Ini', '3.4K')
-                ->description('Kunjungan tertinggi')
-                ->descriptionIcon('heroicon-m-check-badge')
+            Stat::make('Total Pertemuan', $totalPertemuan) // Replaced metric
+                ->description('Jumlah total pertemuan yang telah dijadwalkan')
+                ->descriptionIcon('heroicon-m-calendar')
                 ->color('info'),
         ];
     }
