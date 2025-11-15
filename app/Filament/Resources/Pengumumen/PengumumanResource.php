@@ -18,9 +18,14 @@ class PengumumanResource extends Resource
 {
     protected static ?string $model = Pengumuman::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedMegaphone;
 
     protected static ?string $recordTitleAttribute = 'judul';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Menu Akademik';
+    }
 
     public static function form(Schema $schema): Schema
     {

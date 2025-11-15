@@ -18,9 +18,14 @@ class PresensiResource extends Resource
 {
     protected static ?string $model = Presensi::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCheckBadge;
 
     protected static ?string $recordTitleAttribute = 'leave blank';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Menu Akademik';
+    }
 
     public static function form(Schema $schema): Schema
     {

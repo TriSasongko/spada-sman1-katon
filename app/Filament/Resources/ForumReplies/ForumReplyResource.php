@@ -18,9 +18,14 @@ class ForumReplyResource extends Resource
 {
     protected static ?string $model = ForumReply::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedChatBubbleLeft;
 
     protected static ?string $recordTitleAttribute = 'isi';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Forum Diskusi';
+    }
 
     public static function form(Schema $schema): Schema
     {

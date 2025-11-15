@@ -18,9 +18,14 @@ class PenilaianResource extends Resource
 {
     protected static ?string $model = Penilaian::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedClipboardDocumentCheck;
 
     protected static ?string $recordTitleAttribute = 'leave blank';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Menu Akademik';
+    }
 
     public static function form(Schema $schema): Schema
     {

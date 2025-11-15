@@ -18,9 +18,14 @@ class MateriResource extends Resource
 {
     protected static ?string $model = Materi::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedBookOpen;
 
     protected static ?string $recordTitleAttribute = 'judul';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Menu Akademik';
+    }
 
     public static function form(Schema $schema): Schema
     {

@@ -18,9 +18,14 @@ class KelasResource extends Resource
 {
     protected static ?string $model = Kelas::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedHomeModern;
 
     protected static ?string $recordTitleAttribute = 'nama';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return 'Menu Akademik';
+    }
 
     public static function form(Schema $schema): Schema
     {
