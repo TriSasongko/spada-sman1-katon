@@ -29,19 +29,14 @@ class GuruResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return GuruForm::configure($schema);
+        return $schema->schema(
+            GuruForm::schema()
+        );
     }
 
     public static function table(Table $table): Table
     {
-        return GurusTable::configure($table);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+        return GurusTable::table($table);
     }
 
     public static function getPages(): array

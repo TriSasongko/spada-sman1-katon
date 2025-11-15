@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Guru extends Model
 {
     protected $fillable = [
-        'user_id',
-        'nip',
         'nama',
+        'nip',
+        'jenis_kelamin',
+        'telepon',
+        'email',
     ];
+
 
     public function user()
     {
@@ -26,4 +29,10 @@ class Guru extends Model
     {
         return $this->hasMany(Materi::class);
     }
+
+    public function mapels()
+    {
+        return $this->belongsToMany(Mapel::class);
+    }
+
 }
