@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             GuruSeeder::class,
             SiswaSeeder::class,
+            JurusanSeeder::class,
             KelasSeeder::class,
             SampleContentSeeder::class,
         ]);

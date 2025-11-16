@@ -2,11 +2,11 @@
 
 namespace App\Filament\Resources\Kelas\Tables;
 
+use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\EditAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 
 class KelasTable
 {
@@ -14,26 +14,42 @@ class KelasTable
     {
         return $table
             ->columns([
+
                 TextColumn::make('nama')
-                    ->searchable(),
-                TextColumn::make('guru_id')
-                    ->numeric()
+                    ->label('Nama Kelas')
+                    ->searchable()
                     ->sortable(),
+
+                TextColumn::make('jurusan.nama')
+                    ->label('Jurusan')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('guru.nama')
+                    ->label('Wali Kelas')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('siswas_count')
+                    ->label('Jumlah Siswa')
+                    ->counts('siswas')
+                    ->sortable(),
+
                 TextColumn::make('created_at')
+                    ->label('Dibuat')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
+
                 TextColumn::make('updated_at')
+                    ->label('Diupdate')
                     ->dateTime()
-                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
-            ->filters([
-                //
-            ])
+
             ->recordActions([
                 EditAction::make(),
             ])
+
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

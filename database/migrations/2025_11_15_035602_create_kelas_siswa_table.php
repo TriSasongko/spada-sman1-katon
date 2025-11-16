@@ -5,19 +5,28 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
-    public function up(): void {
+    public function up(): void
+    {
         Schema::create('kelas_siswa', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('kelas_id');
-            $table->unsignedBigInteger('siswa_id');
+
+            $table->foreignId('kelas_id')
+                ->constrained('kelas')
+                ->cascadeOnDelete();
+
+            $table->foreignId('siswa_id')
+                ->constrained('siswas')
+                ->cascadeOnDelete();
+
             $table->timestamps();
 
-            $table->foreign('kelas_id')->references('id')->on('kelas')->cascadeOnDelete();
-            $table->foreign('siswa_id')->references('id')->on('siswas')->cascadeOnDelete();
+            // Mencegah duplikasi data
+            $table->unique(['kelas_id', 'siswa_id']);
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('kelas_siswa');
     }
 };
