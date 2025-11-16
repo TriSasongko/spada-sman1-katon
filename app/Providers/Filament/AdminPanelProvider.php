@@ -37,6 +37,7 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 'Menu Akademik',
                 'Forum Diskusi',
+                'Manajemen Akun',
             ])
 
             ->discoverResources(

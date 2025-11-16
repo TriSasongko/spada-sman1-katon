@@ -13,15 +13,17 @@ class KelasSeeder extends Seeder
     {
         $guru = Guru::first();
 
-        $kelas = Kelas::create([
-            'nama' => 'X IPA 1',
-            'guru_id' => $guru->id,
-        ]);
+        if (!$guru) return;
+
+        $kelas = Kelas::firstOrCreate(
+            ['nama' => 'X IPA 1'],
+            ['guru_id' => $guru->id]
+        );
 
         $siswas = Siswa::all()->take(10);
 
         foreach ($siswas as $siswa) {
-            $kelas->siswas()->attach($siswa->id);
+            $kelas->siswas()->syncWithoutDetaching([$siswa->id]);
         }
     }
 }

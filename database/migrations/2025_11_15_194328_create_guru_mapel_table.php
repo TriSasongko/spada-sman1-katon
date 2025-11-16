@@ -4,8 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
@@ -13,24 +12,18 @@ return new class extends Migration
     {
         Schema::create('guru_mapel', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('guru_id')
-                ->constrained('gurus')
-                ->onDelete('cascade');
-            $table->foreignId('mapel_id')
-                ->constrained('mapels')
-                ->onDelete('cascade');
+            $table->unsignedBigInteger('guru_id');
+            $table->unsignedBigInteger('mapel_id');
             $table->timestamps();
 
-            // Unique constraint untuk mencegah duplikasi
-            $table->unique(['guru_id', 'mapel_id']);
+            $table->foreign('guru_id')->references('id')->on('gurus')->cascadeOnDelete();
+            $table->foreign('mapel_id')->references('id')->on('mapels')->cascadeOnDelete();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('guru_mapel');
     }
+
 };

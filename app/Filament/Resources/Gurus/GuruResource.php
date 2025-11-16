@@ -24,7 +24,7 @@ class GuruResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return 'Menu Akademik';
+        return 'Manajemen Akun';
     }
 
     public static function form(Schema $schema): Schema

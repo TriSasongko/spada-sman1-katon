@@ -12,6 +12,7 @@ return new class extends Migration {
             $table->string('nip')->nullable();
             $table->string('nama');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->foreign('user_id')
                 ->references('id')->on('users')

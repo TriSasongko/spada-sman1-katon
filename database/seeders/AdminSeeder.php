@@ -4,16 +4,20 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
-            'name' => 'Administrator',
-            'email' => 'admin@spada.test',
-            'password' => bcrypt('password'),
-            'role_id' => 1, // Admin
-        ]);
+        User::firstOrCreate(
+            ['email' => 'admin@spada.test'],
+            [
+                'name' => 'Administrator',
+                'password' => Hash::make('password'),
+                'role_id' => 1,
+            ]
+        );
     }
 }
+
