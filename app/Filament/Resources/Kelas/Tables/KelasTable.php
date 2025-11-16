@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\Kelas\Tables;
 
 use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
+use Filament\Tables;
 use Filament\Actions\EditAction;
+use Filament\Actions\DeleteAction as ActionsDeleteAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 
@@ -15,44 +16,45 @@ class KelasTable
         return $table
             ->columns([
 
-                TextColumn::make('nama')
+                Tables\Columns\TextColumn::make('nama')
                     ->label('Nama Kelas')
                     ->searchable()
                     ->sortable(),
 
-                TextColumn::make('jurusan.nama')
+                Tables\Columns\TextColumn::make('jurusan.nama')
                     ->label('Jurusan')
                     ->sortable()
                     ->searchable(),
 
-                TextColumn::make('guru.nama')
+                Tables\Columns\TextColumn::make('guru.nama')
                     ->label('Wali Kelas')
                     ->sortable()
                     ->searchable(),
 
-                TextColumn::make('siswas_count')
+                Tables\Columns\TextColumn::make('siswas_count')
                     ->label('Jumlah Siswa')
                     ->counts('siswas')
                     ->sortable(),
 
-                TextColumn::make('created_at')
+                Tables\Columns\TextColumn::make('created_at')
                     ->label('Dibuat')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
 
-                TextColumn::make('updated_at')
+                Tables\Columns\TextColumn::make('updated_at')
                     ->label('Diupdate')
                     ->dateTime()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
 
-            ->recordActions([
+            ->actions([
                 EditAction::make(),
+                ActionsDeleteAction::make(),   // ← TOMBOL DELETE MUNCUL
             ])
 
-            ->toolbarActions([
+            ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make(),
+                    DeleteBulkAction::make(),   // ← DELETE MASSAL
                 ]),
             ]);
     }

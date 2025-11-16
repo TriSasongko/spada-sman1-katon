@@ -2,9 +2,6 @@
 
 namespace App\Filament\Resources\Kelas\Schemas;
 
-use App\Models\Guru;
-use App\Models\Jurusan;
-use App\Models\Siswa;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Schema;
@@ -32,15 +29,6 @@ class KelasForm
                 ->searchable()
                 ->preload()
                 ->required(),
-
-            Select::make('siswas')
-                ->label('Daftar Siswa')
-                ->multiple()
-                ->relationship('siswas', 'nama')
-                ->searchable()
-                ->preload()
-                ->columnSpanFull(),
-
         ]);
     }
 }

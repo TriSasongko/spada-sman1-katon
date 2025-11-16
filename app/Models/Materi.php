@@ -24,4 +24,17 @@ class Materi extends Model
     {
         return $this->belongsTo(Guru::class);
     }
+
+    protected static function booted()
+    {
+        static::created(function (Materi $materi) {
+
+            // ambil semua siswa dalam kelas materi tersebut
+            foreach ($materi->kelas->siswas as $siswa) {
+
+                // kirim ke USER milik siswa
+                $siswa->user->notify(new \App\Notifications\MateriBaruNotification($materi));
+            }
+        });
+    }
 }

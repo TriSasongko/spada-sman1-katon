@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use App\Models\Jurusan;
-
 use Illuminate\Database\Eloquent\Model;
 
 class Kelas extends Model
 {
+    protected $table = 'kelas';
+
     protected $fillable = [
         'nama',
         'guru_id',
@@ -29,10 +29,5 @@ class Kelas extends Model
     public function siswas()
     {
         return $this->belongsToMany(Siswa::class);
-    }
-
-    public function materis()
-    {
-        return $this->hasMany(Materi::class);
     }
 }

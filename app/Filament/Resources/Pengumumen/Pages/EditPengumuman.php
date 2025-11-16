@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\Pengumumen\Pages;
 
 use App\Filament\Resources\Pengumumen\PengumumanResource;
-use Filament\Actions\DeleteAction;
 use Filament\Resources\Pages\EditRecord;
+use Filament\Actions\DeleteAction;
 
 class EditPengumuman extends EditRecord
 {
