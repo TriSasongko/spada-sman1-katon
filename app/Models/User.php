@@ -14,7 +14,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role_id',
+        'role_id', // Pastikan kolom ini ada di tabel users
     ];
 
     protected $hidden = [
@@ -46,5 +46,33 @@ class User extends Authenticatable
     public function siswa()
     {
         return $this->hasOne(Siswa::class);
+    }
+
+    // --- Method Pengecekan Peran (Role Check Methods) ---
+
+    public function isAdmin(): bool
+    {
+        // Menggunakan ID 1 untuk Admin (sesuai RoleSeeder Anda)
+        return $this->role_id === 1 || $this->role->name === 'Admin';
+    }
+
+    public function isGuru(): bool
+    {
+        // Menggunakan ID 2 untuk Guru (sesuai RoleSeeder Anda)
+        return $this->role_id === 2 || $this->role->name === 'Guru';
+    }
+
+    public function isSiswa(): bool
+    {
+        // Menggunakan ID 3 untuk Siswa (sesuai RoleSeeder Anda)
+        return $this->role_id === 3 || $this->role->name === 'Siswa';
+    }
+
+    // --- Method Wajib untuk Filament ---
+
+    public function canAccessFilament(): bool
+    {
+        // Hanya Admin yang diizinkan mengakses dashboard Filament
+        return $this->isAdmin();
     }
 }

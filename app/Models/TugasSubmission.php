@@ -19,7 +19,7 @@ class TugasSubmission extends Model
 
     public function tugas()
     {
-        return $this->belongsTo(Tugas::class);
+        // return $this->belongsTo(Tugas::class);
     }
 
     public function siswa()

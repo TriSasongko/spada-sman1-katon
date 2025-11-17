@@ -8,11 +8,12 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Display the login view.
+     * Halaman login.
      */
     public function create(): View
     {
@@ -20,26 +21,47 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Proses login dan redirect berdasarkan role.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Proses autentikasi default Laravel
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Data user
+        $user = $request->user();
+
+        /**
+         * REDIRECT MULTI-ROLE
+         */
+
+        // Jika Guru
+        if ($user->isGuru()) {
+            return redirect()->route('guru.dashboard');
+        }
+
+        // Jika Siswa
+        if ($user->isSiswa()) {
+            return redirect()->route('siswa.dashboard');
+        }
+
+        // Jika Admin (default)
+        if ($user->isAdmin()) {
+            return redirect()->route('dashboard');
+        }
+
+        // Jika role tidak dikenal
+        return redirect()->route('dashboard');
     }
 
     /**
-     * Destroy an authenticated session.
+     * Logout.
      */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');
