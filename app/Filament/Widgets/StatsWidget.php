@@ -22,9 +22,6 @@ class StatsWidget extends BaseWidget
             Stat::make('Total Siswa', Siswa::count())
                 ->description('Jumlah total siswa terdaftar')
                 ->color('success'),
-            Stat::make('Total Materi', Materi::count())
-                ->description('Jumlah total materi yang tersedia')
-                ->color('info'),
             Stat::make('Total Pengumuman', Pengumuman::count())
                 ->description('Jumlah total pengumuman yang dipublikasikan')
                 ->color('warning'),
