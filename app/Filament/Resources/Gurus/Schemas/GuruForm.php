@@ -81,6 +81,19 @@ class GuruForm
                     //     ->helperText('Pilih mata pelajaran yang diampu'),
                 ])
                 ->collapsible(),
+
+            Section::make('Kelas yang Diajar')
+                ->description('Pilih kelas-kelas yang diajar oleh guru ini.')
+                ->schema([
+                    Select::make('kelasDiajar')
+                        ->relationship('kelasDiajar', 'nama')
+                        ->multiple()
+                        ->preload()
+                        ->searchable()
+                        ->label('Pilih Kelas yang Diajar')
+                        ->helperText('Pilih satu atau lebih kelas yang diajar oleh guru ini.'),
+                ])
+                ->collapsible(),
         ];
     }
 }

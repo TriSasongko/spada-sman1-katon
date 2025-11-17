@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Kelas extends Model
 {
@@ -13,7 +14,7 @@ class Kelas extends Model
 
     protected $fillable = [
         'nama',
-        'guru_id',
+        'guru_id', // This will now represent the Wali Kelas (Homeroom Teacher)
         'jurusan_id',
     ];
 
@@ -23,10 +24,17 @@ class Kelas extends Model
         return $this->hasMany(Siswa::class);
     }
 
-    // Relasi: Kelas -> Guru (Many-to-One)
-    public function guru()
+    // Relasi: Kelas -> Wali Kelas (Many-to-One)
+    public function waliKelas()
     {
-        return $this->belongsTo(Guru::class);
+        return $this->belongsTo(Guru::class, 'guru_id');
+    }
+
+    // Relasi: Kelas -> Banyak Guru yang Mengajar (Many-to-Many)
+    public function gurusDiajar(): BelongsToMany
+    {
+        return $this->belongsToMany(Guru::class, 'guru_kelas', 'kelas_id', 'guru_id')
+            ->withTimestamps();
     }
 
     // Relasi: Kelas -> Jurusan (Many-to-One)

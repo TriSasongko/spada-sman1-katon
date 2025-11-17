@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Guru extends Model
@@ -26,6 +27,23 @@ class Guru extends Model
     ];
 
     /**
+     * Relasi one-to-many: Guru sebagai Wali Kelas untuk banyak Kelas
+     */
+    public function kelasWali(): HasMany
+    {
+        return $this->hasMany(Kelas::class, 'guru_id');
+    }
+
+    /**
+     * Relasi many-to-many: Guru mengajar banyak Kelas
+     */
+    public function kelasDiajar(): BelongsToMany
+    {
+        return $this->belongsToMany(Kelas::class, 'guru_kelas', 'guru_id', 'kelas_id')
+            ->withTimestamps();
+    }
+
+    /**
      * Relasi many-to-many dengan Mapel
      */
     public function mapels(): BelongsToMany
@@ -39,7 +57,7 @@ class Guru extends Model
      */
     public function getJenisKelaminLabelAttribute(): string
     {
-        return match($this->jenis_kelamin) {
+        return match ($this->jenis_kelamin) {
             'L' => 'Laki-laki',
             'P' => 'Perempuan',
             default => 'Tidak Diketahui'
