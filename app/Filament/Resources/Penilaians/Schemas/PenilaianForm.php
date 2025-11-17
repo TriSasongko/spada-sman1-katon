@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\Penilaians\Schemas;
 
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Schemas\Schema;
@@ -13,23 +14,45 @@ class PenilaianForm
     {
         return $schema
             ->components([
-                TextInput::make('guru_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('siswa_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('kelas_id')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('kategori')
+                Select::make('guru_id')
+                    ->relationship('guru', 'nama')
                     ->required(),
+
+                Select::make('siswa_id')
+                    ->relationship('siswa', 'nama')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+
+                Select::make('kelas_id')
+                    ->relationship('kelas', 'nama')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+                Select::make('mapel_id')
+                    ->relationship('mapel', 'nama_mapel')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+
+                Select::make('kategori') // ganti TextInput jadi Select
+                    ->options([
+                        'Ulangan Harian' => 'Ulangan Harian',
+                        'Tugas' => 'Tugas',
+                        'Praktek' => 'Praktek',
+                        'UTS' => 'UTS',
+                        'UAS' => 'UAS',
+                    ])
+                    ->required(),
+
                 TextInput::make('nilai')
                     ->numeric()
                     ->default(null),
+
                 Textarea::make('deskripsi')
                     ->default(null)
                     ->columnSpanFull(),
+
                 DatePicker::make('tanggal'),
             ]);
     }

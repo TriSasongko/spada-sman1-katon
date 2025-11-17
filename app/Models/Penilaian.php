@@ -10,6 +10,7 @@ class Penilaian extends Model
         'guru_id',
         'siswa_id',
         'kelas_id',
+        'mapel_id',
         'kategori',
         'nilai',
         'deskripsi',
@@ -29,5 +30,9 @@ class Penilaian extends Model
     public function kelas()
     {
         return $this->belongsTo(Kelas::class);
+    }
+    public function mapel()
+    {
+        return $this->belongsTo(Mapel::class);
     }
 }
