@@ -35,9 +35,10 @@ class AdminPanelProvider extends PanelProvider
 
             // Tambahkan menu grup
             ->navigationGroups([
-                'Menu Akademik',
                 'Forum Diskusi',
                 'Manajemen Akun',
+                'Menu Akademik',
+                'Rekap Presensi',
             ])
 
             ->discoverResources(

@@ -7,15 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 class Presensi extends Model
 {
     protected $fillable = [
-        'pertemuan_id',
+        'kelas_id',
+        'mapel_id',
+        'guru_id',
         'siswa_id',
+        'tanggal',
         'status',
         'metode',
     ];
 
-    public function pertemuan()
+    public function kelas()
     {
-        return $this->belongsTo(Pertemuan::class);
+        return $this->belongsTo(Kelas::class);
+    }
+
+    public function mapel()
+    {
+        return $this->belongsTo(Mapel::class);
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class);
     }
 
     public function siswa()
