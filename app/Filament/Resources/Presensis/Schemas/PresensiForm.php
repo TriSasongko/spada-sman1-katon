@@ -16,12 +16,15 @@ class PresensiForm
             Select::make('kelas_id')
                 ->relationship('kelas', 'nama')
                 ->searchable()
+                ->preload()
                 ->required(),
 
             Select::make('mapel_id')
                 ->relationship('mapel', 'nama_mapel')
                 ->searchable()
+                ->preload()
                 ->required(),
+
 
             Select::make('guru_id')
                 ->relationship('guru', 'nama')
@@ -30,7 +33,9 @@ class PresensiForm
             Select::make('siswa_id')
                 ->relationship('siswa', 'nama')
                 ->searchable()
+                ->preload()
                 ->required(),
+
 
             DatePicker::make('tanggal')
                 ->required(),
