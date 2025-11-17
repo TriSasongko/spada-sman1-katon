@@ -120,7 +120,7 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation
     {
         return [
             'nama'  => 'required|string|max:255',
-            'nis'   => 'required|string|unique:siswas,nis',
+            'nis'   => 'required|numeric|unique:siswas,nis',
             'kelas' => 'required|string',
             'email' => [
                 'required',
