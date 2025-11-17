@@ -42,4 +42,9 @@ class Kelas extends Model
     {
         return $this->belongsTo(Jurusan::class);
     }
+    public function guru()
+    {
+        return $this->belongsTo(\App\Models\Guru::class);
+    }
+
 }
