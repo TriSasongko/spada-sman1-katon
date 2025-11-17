@@ -23,17 +23,22 @@ class SiswaForm
             Forms\Components\Select::make('kelas_id')
                 ->relationship('kelas', 'nama')
                 ->searchable()
+                ->preload()
                 ->label('Kelas'),
 
-            // ✔ Email dipindah ke relasi user
-            Forms\Components\TextInput::make('user.email')
+            Forms\Components\TextInput::make('email')
                 ->label('Email')
                 ->email()
                 ->required()
-                ->rule(function ($record) {
-                    return 'unique:users,email,' . ($record->user->id ?? 'NULL');
-                })
-                ->dehydrated(),
+                ->rule('unique:users,email')
+                ->rule(fn($record) => $record ? "unique:users,email,{$record->user_id}" : null),
+
+            Forms\Components\TextInput::make('password')
+                ->password()
+                ->label('Password')
+                ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\Siswas\Pages\CreateSiswa)
+                ->dehydrateStateUsing(fn($state) => $state ? bcrypt($state) : null)
+                ->hidden(fn($livewire) => $livewire instanceof \App\Filament\Resources\Siswas\Pages\EditSiswa),
 
             Forms\Components\FileUpload::make('foto')
                 ->label('Foto')
@@ -43,14 +48,6 @@ class SiswaForm
             Forms\Components\Toggle::make('aktif')
                 ->default(true)
                 ->label('Status Aktif'),
-
-            // ✔ Hanya digunakan saat create, bukan edit
-            Forms\Components\TextInput::make('user.password')
-                ->password()
-                ->label('Password')
-                ->required(fn($livewire) => $livewire instanceof \App\Filament\Resources\Siswas\Pages\CreateSiswa)
-                ->dehydrateStateUsing(fn($state) => $state ? bcrypt($state) : null)
-                ->hidden(fn($livewire) => $livewire instanceof \App\Filament\Resources\Siswas\Pages\EditSiswa),
         ]);
     }
 }

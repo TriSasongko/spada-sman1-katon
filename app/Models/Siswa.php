@@ -2,25 +2,22 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Model;
 
-class Siswa extends Authenticatable
+class Siswa extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     protected $fillable = [
         'nama',
         'nis',
-        'email',
         'kelas_id',
-        'password',
+        'user_id',
         'foto',
-        'aktif'
+        'aktif',
+        'user_id',
     ];
-
-    protected $hidden = ['password'];
 
     public function kelas()
     {
@@ -32,4 +29,5 @@ class Siswa extends Authenticatable
         return $this->belongsTo(User::class);
     }
 }
+
 
