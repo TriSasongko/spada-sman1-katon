@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Siswa;
 use App\Models\Kelas;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -13,76 +14,114 @@ use Maatwebsite\Excel\Concerns\WithValidation;
 
 class SiswaImport implements ToModel, WithHeadingRow, WithValidation
 {
-    private array $emails = [];   // Menyimpan email dalam file Excel
-    private array $nises  = [];   // Menyimpan NIS dalam file Excel
+    private array $emails = [];
+    private array $nises  = [];
 
     public function model(array $row)
     {
-        /** --------------------------
-         *  VALIDASI DUPLIKAT DALAM FILE
-         * --------------------------- */
+        /**
+         * Validasi duplikat dalam file
+         */
         if (in_array($row['email'], $this->emails)) {
-            return null; // Abaikan baris duplikat
+            Log::warning('Email duplikat dalam file', ['email' => $row['email']]);
+            return null;
         }
         if (in_array($row['nis'], $this->nises)) {
-            return null; // Abaikan baris NIS duplikat
+            Log::warning('NIS duplikat dalam file', ['nis' => $row['nis']]);
+            return null;
         }
 
         $this->emails[] = $row['email'];
         $this->nises[]  = $row['nis'];
 
-        /** --------------------------
-         *  VALIDASI KELAS HARUS SUDAH ADA
-         * --------------------------- */
-        $kelas = Kelas::where('nama', $row['kelas'])->first();
+        /**
+         * Cari kelas (case-insensitive, trim whitespace)
+         */
+        $kelasNama = trim($row['kelas']);
 
-        if (! $kelas) {
+        $kelas = Kelas::whereRaw('LOWER(TRIM(nama)) = ?', [strtolower($kelasNama)])->first();
+
+        if (!$kelas) {
+            $kelastersedia = Kelas::orderBy('nama')->pluck('nama')->toArray();
+
+            Log::error('Kelas tidak ditemukan', [
+                'input' => $kelasNama,
+                'tersedia' => $kelastersedia
+            ]);
+
             throw ValidationException::withMessages([
-                'kelas' => "Kelas '{$row['kelas']}' tidak ditemukan. Silakan buat dulu di menu Kelas.",
+                'kelas' => "Kelas '{$kelasNama}' tidak ditemukan. Kelas tersedia: "
+                         . implode(', ', $kelastersedia),
             ]);
         }
 
-        /** --------------------------
-         *  CEGAH USER DUPLIKAT
-         * --------------------------- */
+        /**
+         * Cegah email duplikat
+         */
         $existingUser = User::where('email', $row['email'])->first();
         if ($existingUser) {
             throw ValidationException::withMessages([
-                'email' => "Email {$row['email']} sudah digunakan.",
+                'email' => "Email {$row['email']} sudah digunakan oleh user lain.",
             ]);
         }
 
-        /** --------------------------
-         *  BUAT USER
-         * --------------------------- */
+        /**
+         * Cegah NIS duplikat
+         */
+        $existingSiswa = Siswa::where('nis', $row['nis'])->first();
+        if ($existingSiswa) {
+            throw ValidationException::withMessages([
+                'nis' => "NIS {$row['nis']} sudah terdaftar.",
+            ]);
+        }
+
+        /**
+         * Buat akun User
+         */
         $user = User::create([
             'name'     => $row['nama'],
             'email'    => $row['email'],
             'password' => Hash::make('password123'),
+            'role_id'  => 3, // Role Siswa
         ]);
 
-        /** --------------------------
-         *  BUAT DATA SISWA
-         * --------------------------- */
-        return new Siswa([
+        Log::info('User berhasil dibuat', [
+            'user_id' => $user->id,
+            'email' => $user->email
+        ]);
+
+        /**
+         * Buat data Siswa dengan kelas_id
+         */
+        $siswa = new Siswa([
             'nama'     => $row['nama'],
             'nis'      => $row['nis'],
             'kelas_id' => $kelas->id,
             'user_id'  => $user->id,
             'aktif'    => true,
         ]);
+
+        Log::info('Siswa berhasil dibuat', [
+            'siswa_id' => $siswa->id ?? 'pending',
+            'nama' => $siswa->nama,
+            'nis' => $siswa->nis,
+            'kelas_id' => $siswa->kelas_id,
+            'kelas_nama' => $kelas->nama,
+            'user_id' => $siswa->user_id
+        ]);
+
+        return $siswa;
     }
 
-    /** --------------------------
-     *  VALIDASI FORMAT EXCEL
-     * --------------------------- */
+    /**
+     * Validasi format Excel
+     */
     public function rules(): array
     {
         return [
-            'nama'  => 'required|string',
+            'nama'  => 'required|string|max:255',
             'nis'   => 'required|string|unique:siswas,nis',
             'kelas' => 'required|string',
-
             'email' => [
                 'required',
                 'email',
@@ -91,17 +130,23 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation
         ];
     }
 
+    /**
+     * Pesan error kustom
+     */
     public function customValidationMessages()
     {
         return [
-            'nama.required'  => 'Nama wajib diisi.',
-            'nis.required'   => 'NIS wajib diisi.',
-            'nis.unique'     => 'NIS sudah terdaftar.',
-            'kelas.required' => 'Kelas wajib diisi.',
+            'nama.required'  => 'Kolom Nama wajib diisi.',
+            'nama.max'       => 'Nama maksimal 255 karakter.',
 
-            'email.unique'   => 'Email sudah digunakan di database.',
-            'email.required' => 'Email wajib diisi.',
+            'nis.required'   => 'Kolom NIS wajib diisi.',
+            'nis.unique'     => 'NIS sudah terdaftar di database.',
+
+            'kelas.required' => 'Kolom Kelas wajib diisi.',
+
+            'email.required' => 'Kolom Email wajib diisi.',
             'email.email'    => 'Format email tidak valid.',
+            'email.unique'   => 'Email sudah digunakan di database.',
         ];
     }
 }

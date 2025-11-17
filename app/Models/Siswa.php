@@ -16,18 +16,21 @@ class Siswa extends Model
         'user_id',
         'foto',
         'aktif',
-        'user_id',
     ];
 
+    protected $casts = [
+        'aktif' => 'boolean',
+    ];
+
+    // Relasi: Siswa -> Kelas (Many-to-One)
     public function kelas()
     {
         return $this->belongsTo(Kelas::class);
     }
 
+    // Relasi: Siswa -> User (One-to-One)
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 }
-
-

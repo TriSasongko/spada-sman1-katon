@@ -9,6 +9,7 @@ use Filament\Forms;
 use Filament\Resources\Pages\ListRecords;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use App\Imports\SiswaImport;
 
 class ListSiswas extends ListRecords
@@ -23,11 +24,13 @@ class ListSiswas extends ListRecords
             Action::make('import')
                 ->label('Import Excel')
                 ->icon('heroicon-o-arrow-up-tray')
+                ->color('success')
                 ->form([
                     Forms\Components\FileUpload::make('file')
                         ->label('File Excel')
-                        ->directory('imports/siswa') // folder penyimpanan
-                        ->disk('local')              // pakai storage/app (default)
+                        ->helperText('Format: nama, email, nis, kelas')
+                        ->directory('imports/siswa')
+                        ->disk('local')
                         ->required()
                         ->acceptedFileTypes([
                             'application/vnd.ms-excel',
@@ -35,14 +38,74 @@ class ListSiswas extends ListRecords
                         ]),
                 ])
                 ->action(function ($data) {
+                    try {
+                        $path = Storage::disk('local')->path($data['file']);
 
-                    // Ambil file path lengkap dari storage/app/
-                    $path = Storage::disk('local')->path($data['file']);
+                        if (!file_exists($path)) {
+                            throw new \Exception("File tidak ditemukan di: {$path}");
+                        }
 
-                    Excel::import(new SiswaImport, $path);
+                        Log::info('=== MULAI IMPORT SISWA ===', [
+                            'path' => $path,
+                            'file_size' => filesize($path) . ' bytes'
+                        ]);
+
+                        Excel::import(new SiswaImport, $path);
+
+                        Log::info('=== IMPORT SELESAI ===');
+
+                        \Filament\Notifications\Notification::make()
+                            ->success()
+                            ->title('✅ Import Berhasil')
+                            ->body('Data siswa berhasil diimport ke database')
+                            ->duration(5000)
+                            ->send();
+
+                    } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+                        $failures = $e->failures();
+
+                        Log::error('=== IMPORT GAGAL - VALIDASI ===', [
+                            'total_errors' => count($failures)
+                        ]);
+
+                        foreach ($failures as $failure) {
+                            Log::error('Error baris ' . $failure->row(), [
+                                'attribute' => $failure->attribute(),
+                                'errors' => $failure->errors(),
+                                'values' => $failure->values()
+                            ]);
+
+                            \Filament\Notifications\Notification::make()
+                                ->danger()
+                                ->title("❌ Error Baris {$failure->row()}")
+                                ->body(
+                                    "**{$failure->attribute()}**: " .
+                                    implode(', ', $failure->errors())
+                                )
+                                ->persistent()
+                                ->send();
+                        }
+
+                    } catch (\Exception $e) {
+                        Log::error('=== IMPORT GAGAL - EXCEPTION ===', [
+                            'error' => $e->getMessage(),
+                            'file' => $e->getFile(),
+                            'line' => $e->getLine(),
+                            'trace' => $e->getTraceAsString()
+                        ]);
+
+                        \Filament\Notifications\Notification::make()
+                            ->danger()
+                            ->title('❌ Import Gagal')
+                            ->body($e->getMessage())
+                            ->persistent()
+                            ->send();
+                    }
                 })
                 ->modalHeading('Import Data Siswa')
-                ->modalSubmitActionLabel('Import'),
+                ->modalDescription('Upload file Excel dengan format: nama, email, nis, kelas')
+                ->modalSubmitActionLabel('Import Sekarang')
+                ->modalWidth('md'),
         ];
     }
 }
