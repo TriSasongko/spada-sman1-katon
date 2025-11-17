@@ -14,12 +14,15 @@ class CreateGuru extends CreateRecord
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Buat akun user otomatis
-        $user = User::create([
-            'name' => $data['nama'],          // gunakan nama guru
-            'email' => $data['email'],         // gunakan email guru
-            'password' => bcrypt('password123'),  // password default
-            'role_id' => 2,                      // ROLE GURU
-        ]);
+        // Cek apakah user dengan email ini sudah ada
+        $user = User::firstOrCreate(
+            ['email' => $data['email']],
+            [
+                'name' => $data['nama'],          // gunakan nama guru
+                'password' => bcrypt('password123'),  // password default
+                'role_id' => 2,                      // ROLE GURU
+            ]
+        );
 
         // Set user_id yg diperlukan tabel gurus
         $data['user_id'] = $user->id;
@@ -33,6 +36,10 @@ class CreateGuru extends CreateRecord
 
         if (isset($data['kelasDiajar'])) {
             $record->kelasDiajar()->sync($data['kelasDiajar']);
+        }
+
+        if (isset($data['mapels'])) {
+            $record->mapels()->sync($data['mapels']);
         }
 
         return $record;

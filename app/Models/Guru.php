@@ -18,6 +18,7 @@ class Guru extends Model
         'jenis_kelamin',
         'telepon',
         'email',
+        'user_id',
     ];
 
     protected $casts = [

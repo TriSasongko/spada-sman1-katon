@@ -27,6 +27,11 @@ class EditGuru extends EditRecord
             $record->kelasDiajar()->sync($data['kelasDiajar']);
         }
 
+        // Sync the many-to-many relationship for 'mapels'
+        if (isset($data['mapels'])) {
+            $record->mapels()->sync($data['mapels']);
+        }
+
         return $record;
     }
 }
