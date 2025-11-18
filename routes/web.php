@@ -1,51 +1,66 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\GuruDashboardController; // <-- Tambahkan
-use App\Http\Controllers\SiswaDashboardController; // <-- Tambahkan
+use App\Http\Controllers\SiswaDashboardController;
+use App\Http\Controllers\GuruDashboardController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
+// ROOT
+// Kalau belum login → ke login
+// Kalau sudah login → redirect ke dashboard sesuai role
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('redirect.role');
+    }
+    return redirect()->route('login');
 });
 
-// Rute Dashboard Default (Mungkin hanya diakses jika tidak ada role spesifik)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// LOGIN
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])
+    ->name('login')
+    ->middleware('guest');
 
-// Rute yang Membutuhkan Otentikasi
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])
+    ->name('login.store');
+
+// REDIRECT ROLE (pengganti /home)
+Route::get('/redirect-role', function () {
+    $user = Auth::user();
+
+    return match ($user->role) {
+        'admin' => redirect('/admin'),
+        'guru' => redirect()->route('guru.dashboard'),
+        'siswa' => redirect()->route('siswa.dashboard'),
+        default => abort(403, 'Role tidak valid'),
+    };
+})->name('redirect.role')->middleware('auth');
+
+// ROUTES YANG BUTUH LOGIN
 Route::middleware('auth')->group(function () {
 
-    // Rute Profile Standar
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-    // ------------------------------------------------------------------
-    // Rute Dashboard Multi-Role (BARU)
-    // ------------------------------------------------------------------
-
-    // Rute Dashboard Guru
-    Route::get('/guru/dashboard', [GuruDashboardController::class, 'index'])
-        ->name('guru.dashboard');
-
-    // Rute Dashboard Siswa
     Route::get('/siswa/dashboard', [SiswaDashboardController::class, 'index'])
         ->name('siswa.dashboard');
 
-    // Catatan: Rute Admin (Filament) ditangani secara otomatis oleh Filament
+    Route::get('/guru', [GuruDashboardController::class, 'index'])
+        ->name('guru.dashboard');
+
+    // ❌ HAPUS route /home karena tidak dipakai dan bikin ke sana terus
 });
 
-require __DIR__.'/auth.php';
+// LOGOUT
+Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('logout');
+
+// LOGOUT FILAMENT
+Route::post('/admin/logout', [AuthenticatedSessionController::class, 'destroy'])
+    ->name('filament.admin.auth.logout');
+
+// AUTH LAIN
+require __DIR__ . '/auth.php';

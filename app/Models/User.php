@@ -14,7 +14,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'role_id', // Pastikan kolom ini ada di tabel users
+        'role_id',
     ];
 
     protected $hidden = [
@@ -22,57 +22,46 @@ class User extends Authenticatable
         'remember_token',
     ];
 
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
-    // Relasi: User -> Role
+    // Relasi
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
 
-    // Relasi: User -> Guru
     public function guru()
     {
         return $this->hasOne(Guru::class);
     }
 
-    // Relasi: User -> Siswa (One-to-One)
     public function siswa()
     {
         return $this->hasOne(Siswa::class);
     }
 
-    // --- Method Pengecekan Peran (Role Check Methods) ---
-
+    // Role check
     public function isAdmin(): bool
     {
-        // Menggunakan ID 1 untuk Admin (sesuai RoleSeeder Anda)
-        return $this->role_id === 1 || $this->role->name === 'Admin';
+        return $this->role_id === 1 || optional($this->role)->name === 'Admin';
     }
 
     public function isGuru(): bool
     {
-        // Menggunakan ID 2 untuk Guru (sesuai RoleSeeder Anda)
-        return $this->role_id === 2 || $this->role->name === 'Guru';
+        return $this->role_id === 2 || optional($this->role)->name === 'Guru';
     }
 
     public function isSiswa(): bool
     {
-        // Menggunakan ID 3 untuk Siswa (sesuai RoleSeeder Anda)
-        return $this->role_id === 3 || $this->role->name === 'Siswa';
+        return $this->role_id === 3 || optional($this->role)->name === 'Siswa';
     }
 
-    // --- Method Wajib untuk Filament ---
-
+    // Filament access
     public function canAccessFilament(): bool
     {
-        // Hanya Admin yang diizinkan mengakses dashboard Filament
-        return $this->isAdmin();
+        return $this->isAdmin(); // atau tambah isGuru() jika Guru juga boleh akses Filament
     }
 }

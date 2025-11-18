@@ -8,12 +8,11 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
-use App\Models\User;
 
 class AuthenticatedSessionController extends Controller
 {
     /**
-     * Halaman login.
+     * Halaman login
      */
     public function create(): View
     {
@@ -21,49 +20,43 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Proses login dan redirect berdasarkan role.
+     * Proses login dan redirect berdasarkan role
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Proses autentikasi default Laravel
+        // Proses autentikasi Laravel
         $request->authenticate();
         $request->session()->regenerate();
 
-        // Data user
         $user = $request->user();
 
-        /**
-         * REDIRECT MULTI-ROLE
-         */
-
-        // Jika Guru
-        if ($user->isGuru()) {
-            return redirect()->route('guru.dashboard');
+        // Redirect sesuai role (TIDAK pakai /home)
+        if (method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            return redirect('/admin'); // Filament admin
         }
 
-        // Jika Siswa
-        if ($user->isSiswa()) {
-            return redirect()->route('siswa.dashboard');
+        if (method_exists($user, 'isGuru') && $user->isGuru()) {
+            return redirect()->route('guru.dashboard'); // Dashboard guru
         }
 
-        // Jika Admin (default)
-        if ($user->isAdmin()) {
-            return redirect()->route('dashboard');
+        if (method_exists($user, 'isSiswa') && $user->isSiswa()) {
+            return redirect()->route('siswa.dashboard'); // Dashboard siswa
         }
 
-        // Jika role tidak dikenal
-        return redirect()->route('dashboard');
+        // Fallback jika role tidak cocok
+        abort(403, 'Role tidak valid');
     }
 
     /**
-     * Logout.
+     * Logout
      */
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('login');
     }
 }
