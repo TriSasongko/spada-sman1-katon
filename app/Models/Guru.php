@@ -64,4 +64,8 @@ class Guru extends Model
             default => 'Tidak Diketahui'
         };
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -9,6 +9,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\BulkActionGroup;
+use Illuminate\Support\Facades\Hash;
 
 class GurusTable
 {
@@ -56,9 +57,12 @@ class GurusTable
                     ->icon('heroicon-o-key')
                     ->requiresConfirmation()
                     ->action(function ($record) {
-                        // Reset password, misal default 'password123'
-                        $record->user->password = bcrypt('password123');
-                        $record->user->save();
+                        // Reset password default 'password123' dengan cara aman
+                        $user = $record->user; // ambil user terkait
+                        if ($user) {
+                            $user->password = Hash::make('password123');
+                            $user->save();
+                        }
                     }),
             ])
             ->bulkActions([

@@ -12,55 +12,63 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 |--------------------------------------------------------------------------
 */
 
-// ROOT
-// Kalau belum login → ke login
-// Kalau sudah login → redirect ke dashboard sesuai role
+// Root → langsung ke login
 Route::get('/', function () {
-    if (Auth::check()) {
-        return redirect()->route('redirect.role');
-    }
     return redirect()->route('login');
 });
 
-// LOGIN
-Route::get('/login', [AuthenticatedSessionController::class, 'create'])
-    ->name('login')
-    ->middleware('guest');
+// 🔹 Login utama Laravel
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
 
-Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-    ->name('login.store');
-
-// REDIRECT ROLE (pengganti /home)
-Route::get('/redirect-role', function () {
-    $user = Auth::user();
-
-    return match ($user->role) {
-        'admin' => redirect('/admin'),
-        'guru' => redirect()->route('guru.dashboard'),
-        'siswa' => redirect()->route('siswa.dashboard'),
-        default => abort(403, 'Role tidak valid'),
-    };
-})->name('redirect.role')->middleware('auth');
-
-// ROUTES YANG BUTUH LOGIN
+// Middleware auth
 Route::middleware('auth')->group(function () {
 
+    // -----------------------------
+    // Dashboard Siswa
+    // -----------------------------
     Route::get('/siswa/dashboard', [SiswaDashboardController::class, 'index'])
         ->name('siswa.dashboard');
 
+    // -----------------------------
+    // Dashboard Guru (Filament)
+    // -----------------------------
     Route::get('/guru', [GuruDashboardController::class, 'index'])
         ->name('guru.dashboard');
 
-    // ❌ HAPUS route /home karena tidak dipakai dan bikin ke sana terus
+    // -----------------------------
+    // Redirect multi-role setelah login
+    // -----------------------------
+    Route::get('/home', function () {
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            return redirect('/admin');
+        }
+
+        if ($user->role === 'guru') {
+            return redirect('/guru');
+        }
+
+        if ($user->role === 'siswa') {
+            return redirect()->route('siswa.dashboard');
+        }
+
+        abort(403, 'Role tidak valid');
+    })->name('home');
+
+    // -----------------------------
+    // Logout
+    // -----------------------------
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+        ->name('logout');
 });
 
-// LOGOUT
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-    ->name('logout');
-
-// LOGOUT FILAMENT
+// -----------------------------
+// OVERRIDE LOGOUT FILAMENT - TAMBAHKAN INI
+// -----------------------------
 Route::post('/admin/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('filament.admin.auth.logout');
 
-// AUTH LAIN
+// Routes untuk auth lainnya (register, forgot password, dsb)
 require __DIR__ . '/auth.php';

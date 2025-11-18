@@ -33,7 +33,6 @@
                             </div>
                         </dl>
                     </div>
-
                     <p class="mt-6 text-sm text-gray-500">Di sini Anda dapat menampilkan jadwal, nilai, dan informasi Siswa lainnya.</p>
                 </div>
             </div>
